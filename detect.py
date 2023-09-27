@@ -67,8 +67,14 @@ def detect(save_img=False):
     old_img_b = 1
 
     t0 = time.time()
+
+    processed_images = 0
+    images_without_objects = 0
+
     for path, img, im0s, vid_cap in dataset:
-        primary_focus = True
+        
+        processed_images += 1
+        
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -97,6 +103,7 @@ def detect(save_img=False):
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
 
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
@@ -108,7 +115,7 @@ def detect(save_img=False):
             save_path = str(save_dir / p.name)  # img.jpg
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-            if len(det) and primary_focus:
+            if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
@@ -117,26 +124,24 @@ def detect(save_img=False):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
-                # Write results
+                max_area = 0
+                largest_object = None
                 for *xyxy, conf, cls in reversed(det):
-                    if save_txt:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
-                        with open(txt_path + '.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                    x1, y1, x2, y2 = map(int, xyxy)
+                    area = (x2 - x1) * (y2 - y1)
+                    if area > max_area:
+                        max_area = area
+                        largest_object = (x1, y1, x2, y2)
 
-                    if save_img or view_img:  # Add bbox to image
-                        label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                if largest_object:
+                    x1, y1, x2, y2 = largest_object
+                    cropped_img = im0[y1:y2, x1:x2]
+                    cropped_save_path = str(save_dir / f"{p.stem}.png")
+                    cv2.imwrite(cropped_save_path, cropped_img)
+                    print(f"The cropped image of the largest object is saved at: {cropped_save_path}")
 
-                        # Crop and save the image inside the bounding box
-                        
-                        x1, y1, x2, y2 = map(int, xyxy)
-                        cropped_img = im0[y1:y2, x1:x2]
-                        cropped_save_path = str(save_dir / f"{p.stem}.png")
-                        cv2.imwrite(cropped_save_path, cropped_img)
-                        print(f"The cropped image is saved at: {cropped_save_path}")
-                        primary_focus = False
+            else:
+                images_without_objects += 1
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
@@ -149,6 +154,10 @@ def detect(save_img=False):
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         #print(f"Results saved to {save_dir}{s}")
+
+    print(f"Total images processed: {processed_images}")
+    print(f"Images with detected objects: {processed_images - images_without_objects}")
+    print(f"Images without detected objects: {images_without_objects}")
 
     print(f'Done. ({time.time() - t0:.3f}s)')
 
