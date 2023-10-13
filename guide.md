@@ -1,14 +1,18 @@
-What is this?
+### What is this?
 - yolov7_vessel is forked from yolov7
 - yolov7_vessel is for the purpose of processing a dataset of vessels by cropping the image to only include the vessel, and saving it as a new image in the specified directory
-- This is built on the pytorch machine learning library
+- This is built on the pytorch machine learning library and the YOLOv7 computer vision architecture
 
-How to get data
+### Differences from TODO/YOLOv7 repository:
+- Identifies each vessel in the dataset and takes the image with the largest area
+- Saves cropped image instead of bounding box
+- Bounding box highlighting has been removed
+
+### How to get data and pre-trained model
 - Download gdown
 ```
 pip install gdown
 ```
-
 -Download dataset
 ```
 gdown https://drive.google.com/uc?id=1PMxtrY2bjqX_PRXW8rPZXIsndhgz5xKG
@@ -17,15 +21,19 @@ gdown https://drive.google.com/uc?id=1PMxtrY2bjqX_PRXW8rPZXIsndhgz5xKG
 ```
 gdown https://drive.google.com/uc?id=1EmwgKUahZeiSuRNrBRUA_92lFHHz9CPu
 ```
-
 - Unpack data
 ```
 tar -xzf Downloads.tar.gz
 ```
 
-Process data using traditional cpu/gpu set up:
+### Processing Data
+#### Process data using traditional cpu/gpu set up:
 1) Make sure anaconda is installed
-2) Create environment
+2) Clone repository
+```
+git clone https://github.com/Frankovich/yolov7_vessel.git
+```
+4) Create environment
 ```
 conda create -n pytorch python=3.8 pip
 ```
@@ -35,4 +43,11 @@ source activate pytorch
 conda install ipykernel
 pip install -r requirements.txt
 ```
-4) 
+4) Execute file
+- Assuming weights have been downloaded inside of the YOLOv7_vessel directory
+- Assuming Downloads.tar.gz was downloaded and unpacked into Downloads in the parent directory
+```
+python detect.py --weights yolov7-e6e.pt --classes 8 --source ../Downloads
+```
+5) Image outputs have been saved into the yolov7_vessel/runs/detect directory
+6) 
