@@ -48,8 +48,14 @@ pip install -r requirements.txt
 4) Execute file
 - Assuming weights have been downloaded inside of the YOLOv7_vessel directory
 - Assuming Downloads.tar.gz was downloaded and unpacked into Downloads in the parent directory
+- "--weights yolov7-e6e.pt" specifies local model
+- "--classes 8" specifies the 8th class, which is YOLOv7's vessel classification
+- "--source ../Downloads" specifies the input data's directory
 ```
 python detect.py --weights yolov7-e6e.pt --classes 8 --source ../Downloads
 ```
 5) Image outputs have been saved into the yolov7_vessel/runs/detect directory
-6) 
+
+#### Process data using Slurm Workload Manager on a GPU Computer Cluster:
+
+
