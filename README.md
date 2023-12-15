@@ -4,7 +4,7 @@ This repository is forked from the YOLOv7 implementation in PyTorch repository. 
 
 ## Example
 
-![PoachBuster Progress Report](https://github.com/Frankovich/yolov7_vessel/assets/91154822/192eecb4-a8cc-48c3-975d-5bd6d48f11ca)
+![PoachBuster Progress Report](https://github.com/Frankovich/yolov7_vessel/assets/91154822/a172f70e-ec57-4c7b-94e1-0ca2c18f0d7d)
 
 Above depicts the cropping of the image to capture the important information present in the image. 
 
