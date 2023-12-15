@@ -1,4 +1,51 @@
-# Official YOLOv7
+# YOLOv7_vessel Implementation
+
+This repository is forked from the YOLOv7 implementation in PyTorch repository. It has been modified to aid in the processing of large image datasets to minimize information that is not useful when training large image classification networks.
+
+## Example
+
+![PoachBuster Progress Report](https://github.com/Frankovich/yolov7_vessel/assets/91154822/192eecb4-a8cc-48c3-975d-5bd6d48f11ca)
+
+Above depicts the cropping of the image to capture the important information present in the image. 
+
+## ARC Implementation
+
+**This section covers what is present in the yolov7_vessel/sbatch_pytorch_config.sh file**
+
+At Virginia Tech, the Advanced Research Computing provides CPU and GPU clusters for research applications. The TinkerCliffs cluster is a GPU cluster that greatly decreases the amount of processing time for tasks such as above. 
+
+**Requesting computational resources from TinkerCliffs**
+```
+####### job customization
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH -t 1:00:00
+#SBATCH -p a100_normal_q
+#SBATCH --gres=gpu:1
+#SBATCH -A personal
+```
+
+**Installing the Dependencies from requirements.txt**
+```
+module load Anaconda3/2020.11
+module list
+nvidia-smi
+conda create -n pytorch python=3.8 pip 
+source activate pytorch
+conda install ipykernel
+pip install -r requirements.txt
+```
+
+**Running the Code to Process the Images** 
+```
+python detect.py --weights yolov7-e6e.pt --classes 8 --source ../Downloads
+```
+detect.py: The modified function which crops and saves the images
+--weights yolov7-e6e.pt: The location of the weights to be used for the YOLOv4 model
+--classes 8: The class to search for, 8 is the vessel class
+--source ../Downloads: The input data for the processing
+
+## Official YOLOv7
 
 Implementation of paper - [YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors](https://arxiv.org/abs/2207.02696)
 
